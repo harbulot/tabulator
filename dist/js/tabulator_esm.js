@@ -9052,7 +9052,7 @@ function money(cell, formatterParams, onRendered){
 	number, integer, decimal, rgx;
 
 	var decimalSym = formatterParams.decimal || ".";
-	var thousandSym = formatterParams.thousand || ",";
+	var thousandSym = formatterParams.thousand != null ? formatterParams.thousand : ",";
 	var negativeSign = formatterParams.negativeSign || "-";
 	var symbol = formatterParams.symbol || "";
 	var after = !!formatterParams.symbolAfter;
@@ -9075,8 +9075,10 @@ function money(cell, formatterParams, onRendered){
 
 	rgx = /(\d+)(\d{3})/;
 
-	while (rgx.test(integer)){
-		integer = integer.replace(rgx, "$1" + thousandSym + "$2");
+	if (thousandSym) {
+		while (rgx.test(integer)){
+			integer = integer.replace(rgx, "$1" + thousandSym + "$2");
+		}
 	}
 
 	return after ? sign + integer + decimal + symbol : sign + symbol + integer + decimal;

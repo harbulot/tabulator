@@ -10958,7 +10958,6 @@
     }, {
       key: "redrawNeeded",
       value: function redrawNeeded(data) {
-        console.log("needed?", data);
         return (this.field ? typeof data[this.field] !== "undefined" : false) || (this.elementField ? typeof data[this.elementField] !== "undefined" : false);
       }
     }]);
@@ -15719,7 +15718,7 @@
         decimal,
         rgx;
     var decimalSym = formatterParams.decimal || ".";
-    var thousandSym = formatterParams.thousand || ",";
+    var thousandSym = formatterParams.thousand != null ? formatterParams.thousand : ",";
     var negativeSign = formatterParams.negativeSign || "-";
     var symbol = formatterParams.symbol || "";
     var after = !!formatterParams.symbolAfter;
@@ -15740,8 +15739,10 @@
     decimal = number.length > 1 ? decimalSym + number[1] : "";
     rgx = /(\d+)(\d{3})/;
 
-    while (rgx.test(integer)) {
-      integer = integer.replace(rgx, "$1" + thousandSym + "$2");
+    if (thousandSym) {
+      while (rgx.test(integer)) {
+        integer = integer.replace(rgx, "$1" + thousandSym + "$2");
+      }
     }
 
     return after ? sign + integer + decimal + symbol : sign + symbol + integer + decimal;
@@ -16960,7 +16961,7 @@
           if (typeof target[name] !== "undefined") {
             return target[name];
           } else {
-            return target._group.table.componentFunctionBinder.handle("row", target._group, name);
+            return target._group.groupManager.table.componentFunctionBinder.handle("row", target._group, name);
           }
         }
       });
@@ -18886,7 +18887,6 @@
       key: "structureData",
       value: function structureData(parsedData) {
         var data = [];
-        console.log("structure", parsedData);
 
         if (Array.isArray(parsedData) && parsedData.length && Array.isArray(parsedData[0])) {
           if (this.table.options.autoColumns) {
@@ -22051,9 +22051,11 @@
                 margin = this.table.options.progressiveLoadScrollMargin || this.table.rowManager.element.clientHeight * 2;
 
                 if (this.table.rowManager.element.scrollHeight <= this.table.rowManager.element.clientHeight + margin) {
-                  setTimeout(function () {
-                    _this6.nextPage();
-                  });
+                  if (this.page < this.max) {
+                    setTimeout(function () {
+                      _this6.nextPage();
+                    });
+                  }
                 }
 
                 break;
